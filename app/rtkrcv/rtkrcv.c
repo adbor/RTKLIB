@@ -37,6 +37,8 @@
 *           2017/09/01 1.21 add command ssr
 *-----------------------------------------------------------------------------*/
 #include <stdlib.h>
+
+#ifndef WIN32
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -49,6 +51,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+#endif
 #include "rtklib.h"
 #include "vt.h"
 
