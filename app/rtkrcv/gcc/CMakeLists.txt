@@ -51,5 +51,7 @@ add_executable(rtkrcv
   ../../../src/rcv/rt17.c 
 )
 
+target_link_libraries(rtkrcv Winmm)
+
 #CFLAGS = -Wall -O3 -ansi -pedantic -Wno-unused-but-set-variable -I$(SRC) -I.. -DTRACE $(CTARGET) -g
 #LDLIBS  = -lm -lrt -lpthread

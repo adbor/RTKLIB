@@ -10,8 +10,6 @@
 #define VT_H
 #ifndef WIN32
 #include <termios.h>
-#else
-typedef struct termios{ int a; };
 #endif
 #include "rtklib.h"
 

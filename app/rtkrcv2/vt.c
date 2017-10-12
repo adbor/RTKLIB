@@ -16,10 +16,6 @@
 #include <ctype.h>
 #ifdef WIN32
 #include <winsock2.h>
-#define O_RDWR 0
-#define TCSANOW 1
-#define TCSANOW 2
-#pragma comment(lib, "Ws2_32.lib")
 #else
 #include <unistd.h>
 #include <fcntl.h>
@@ -84,10 +80,8 @@ extern vt_t *vt_open(int sock, const char *dev)
             return 0;
         }
         /* set terminal mode echo-off */
-#ifndef WIN32
         tcgetattr(vt->in,&vt->tio);
         tcsetattr(vt->in,TCSANOW,&tio);
-#endif
     }
     else {
         vt->type=1;
@@ -115,9 +109,7 @@ extern void vt_close(vt_t *vt)
     
     /* restore terminal mode */
     if (!vt->type) {
-#ifndef WIN32
         tcsetattr(vt->in,TCSANOW,&vt->tio);
-#endif
     }
     close(vt->in);
     if (vt->logfp) fclose(vt->logfp);

@@ -51,7 +51,22 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <errno.h>
+#else
+#include <stdint.h>
+#include <stdio.h>
+typedef uint32_t socklen_t;
+typedef int pthread_t;
+#define SIGINT 0
+#define SIGTERM 1
+#define SIGUSR2 2 
+#define SIGHUP 3
+#define SIGPIPE 4
+#define SIG_IGN 5
+//#define SIG_IGN 6
+#define popen _popen
+#define pclose _pclose
 #endif
+
 #include "rtklib.h"
 #include "vt.h"
 
@@ -261,7 +276,12 @@ static void chop(char *str)
     for (p=str+strlen(str)-1;p>=str&&!isgraph((int)*p);p--) *p='\0';
 }
 /* thread to send keep alive for monitor port --------------------------------*/
+#ifdef WIN32
+static DWORD WINAPI sendkeepalive(void *arg)
+#else
 static void *sendkeepalive(void *arg)
+#endif
+
 {
     trace(3,"sendkeepalive: start\n");
     
@@ -284,7 +304,13 @@ static int openmoni(int port)
     if (!stropen(&moni,STR_TCPSVR,STR_MODE_RW,path)) return 0;
     strsettimeout(&moni,timeout,reconnect);
     keepalive=1;
+  
+#ifdef WIN32
+    thread = CreateThread(NULL, 0, sendkeepalive, NULL, 0, NULL);
+#else
     pthread_create(&thread,NULL,sendkeepalive,NULL);
+#endif
+
     return 1;
 }
 /* close monitor port --------------------------------------------------------*/
@@ -1332,7 +1358,12 @@ static int cmd_exec(const char *cmd, vt_t *vt)
     return ret;
 }
 /* console thread ------------------------------------------------------------*/
+#ifdef WIN32
+static DWORD WINAPI con_thread(void *arg)
+#else
 static void *con_thread(void *arg)
+#endif
+
 {
     const char *cmds[]={
         "start","stop","restart","solution","status","satellite","observ",
@@ -1428,7 +1459,12 @@ static con_t *con_open(int sock, const char *dev)
     }
     /* start console thread */
     con->state=1;
+
+#ifdef WIN32
+    if (!(con->thread = CreateThread(NULL, 0, con_thread, con, 0, NULL))) {
+#else
     if (pthread_create(&con->thread,NULL,con_thread,con)) {
+#endif
         free(con);
         return NULL;
     }
@@ -1441,7 +1477,12 @@ static void con_close(con_t *con)
     
     if (!con) return;
     con->state=con->vt->state=0;
+#ifdef WIN32
+    WaitForSingleObject(con->thread, 10000);
+    CloseHandle(con->thread);
+#else
     pthread_join(con->thread,NULL);
+#endif
     free(con);
 }
 /* open socket for remote console --------------------------------------------*/
