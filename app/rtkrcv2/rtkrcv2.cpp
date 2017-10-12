@@ -24,29 +24,27 @@ static int strfmt[]={                   /* stream formats */
     STRFMT_UBX,STRFMT_RTCM3,STRFMT_SP3,SOLF_LLH,SOLF_NMEA
 };
 
-const prcopt_t prcopt_default_my;
-#if 0
-={ /* defaults processing options */
-  PMODE_SINGLE,0,2,SYS_GPS|SYS_GLO,   /* mode,soltype,nf,navsys */
+const prcopt_t prcopt_default_my = { /* defaults processing options */
+  PMODE_SINGLE,0,2,SYS_GPS,   /* mode,soltype,nf,navsys */
   15.0*D2R,{{0,0}},           /* elmin,snrmask */
   0,1,1,1,                    /* sateph,modear,glomodear,bdsmodear */
-  5,0,10,                     /* glomodear,maxout,minlock,minfix */
+  5,0,10,1,                   /* maxout,minlock,minfix,armaxiter */
   0,0,0,0,                    /* estion,esttrop,dynamics,tidecorr */
   1,0,0,0,0,                  /* niter,codesmooth,intpref,sbascorr,sbassatsel */
   0,0,                        /* rovpos,refpos */
   {100.0,100.0},              /* eratio[] */
   {100.0,0.003,0.003,0.0,1.0}, /* err[] */
   {30.0,0.03,0.3},            /* std[] */
-  {1E-4,1E-3,1E-4,1E-1,1E-2}, /* prn[] */
+  {1E-4,1E-3,1E-4,1E-1,1E-2,0.0}, /* prn[] */
   5E-12,                      /* sclkstab */
-  {3.0,0.9999,0.20},          /* thresar */
+  {3.0,0.9999,0.25,0.1,0.05}, /* thresar */
   0.0,0.0,0.05,               /* elmaskar,almaskhold,thresslip */
   30.0,30.0,30.0,             /* maxtdif,maxinno,maxgdop */
   {0},{0},{0},                /* baseline,ru,rb */
   {"",""},                    /* anttype */
   {{0}},{{0}},{0}             /* antdel,pcv,exsats */
 };
-#endif
+
 long long int GetNewEpoch(FILE* f, rtksvr_t *svr, int index){
   long long int time = -1;
   char ch;
@@ -178,6 +176,7 @@ int main(int argc, char* argv[])
   double npos[3];
   char s[3][MAXRCVCMD]={"","",""},*cmds[]={NULL,NULL,NULL};
   char *ropts[]={"","",""};
+  char s2[3][MAXRCVCMD] = { "", "", "" }, *cmds_periodic[] = { NULL, NULL, NULL };
 
   // long long int sizeOfFile;
   // fseek(rovf, 0,SEEK_END);
@@ -185,7 +184,7 @@ int main(int argc, char* argv[])
   // fseek(rovf, 0,SEEK_SET);
 
   rtksvrstart(svr,svrcycle,buffsize,strtype,paths,strfmt,navmsgsel,
-                     cmds,ropts,nmeacycle,nmeareq,npos,&prcopt,solopt,NULL, false);
+    cmds, cmds_periodic,ropts, nmeacycle, nmeareq, npos, &prcopt, solopt, NULL, false);
 
   prcopt_t prcopt1;                 /* processing options */
   solopt_t solopt1[2]={{0}};        /* solution options */

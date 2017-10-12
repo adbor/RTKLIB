@@ -10,7 +10,6 @@ include_directories( ../../src )
 ###########################################################
 add_executable(rtkrcv2
   rtkrcv2.cpp
-  vt.c 
   ../../src/rtkcmn.c 
   ../../src/rtksvr.c 
   ../../src/rtkpos.c 
