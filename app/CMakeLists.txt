@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 set( PROJ_NAME rtklibApps )
 project (${PROJ_NAME})
 
-add_subdirectory(./../src "${BUILD_DIR}/rtklib")
+add_subdirectory(./../src "${CMAKE_BINARY_DIR}/rtklib")
 
 #should be WIN32 specific
 if(WIN32)
